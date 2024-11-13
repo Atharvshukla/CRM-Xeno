@@ -6,7 +6,7 @@ export const registerCompany = (data) => axios.post(`${API_URL}/auth/register`, 
 export const loginCompany = (data) => axios.post(`${API_URL}/auth/login`, data);
 
 export const addCustomer = (data, token) =>
-  axios.post(`${API_URL}/customers/add`, data, {
+  axios.post(`${API_URL}/customers/add-customer`, data, {
     headers: { Authorization: `Bearer ${token}` },
   });
 

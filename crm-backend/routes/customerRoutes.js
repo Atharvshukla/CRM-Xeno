@@ -4,11 +4,18 @@ const router = express.Router();
 
 // Route to add a new customer
 router.post('/add-customer', (req, res) => {
+  console.log('Request Body:', req.body); // Debug line to check request body
+
+  // Extract data from request body
   const { name, email, phone, visits, amount } = req.body;
 
   // Validate the input data
-  if (!name || !email || !phone || !visits || !amount) {
+  if (!name || !email || !phone || visits === undefined || amount === undefined) {
     return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  if (isNaN(visits) || isNaN(amount)) {
+    return res.status(400).json({ error: 'Visits and amount must be numbers' });
   }
 
   // Create a new customer document
@@ -16,8 +23,8 @@ router.post('/add-customer', (req, res) => {
     name,
     email,
     phone,
-    visits,
-    amount
+    visits: parseInt(visits),   // Ensure visits is a number
+    amount: parseFloat(amount)  // Ensure amount is a number
   });
 
   // Save to database
@@ -41,7 +48,6 @@ router.get('/filter-customers', (req, res) => {
     return res.status(400).json({ error: 'minVisits and minAmount are required query parameters' });
   }
 
-  // Query customers with visits >= minVisits and amount >= minAmount
   Customer.find({
     visits: { $gte: parseInt(minVisits) },
     amount: { $gte: parseFloat(minAmount) }
@@ -50,17 +56,16 @@ router.get('/filter-customers', (req, res) => {
     .catch(err => res.status(400).json({ error: 'Error filtering customers', details: err }));
 });
 
-// Example: Update customer details (e.g., amount and visits)
+// Route to update customer details (e.g., amount and visits)
 router.put('/update-customer/:id', (req, res) => {
   const { id } = req.params;
   const { visits, amount } = req.body;
 
-  if (!visits || !amount) {
+  if (visits === undefined || amount === undefined) {
     return res.status(400).json({ error: 'Visits and amount are required to update' });
   }
 
-  // Find customer by ID and update visits and amount
-  Customer.findByIdAndUpdate(id, { visits, amount }, { new: true })
+  Customer.findByIdAndUpdate(id, { visits: parseInt(visits), amount: parseFloat(amount) }, { new: true })
     .then(updatedCustomer => {
       if (!updatedCustomer) {
         return res.status(404).json({ error: 'Customer not found' });
@@ -70,11 +75,10 @@ router.put('/update-customer/:id', (req, res) => {
     .catch((err) => res.status(400).json({ error: 'Error updating customer', details: err }));
 });
 
-// Example: Delete customer by ID
+// Route to delete customer by ID
 router.delete('/delete-customer/:id', (req, res) => {
   const { id } = req.params;
 
-  // Find and delete customer by ID
   Customer.findByIdAndDelete(id)
     .then(deletedCustomer => {
       if (!deletedCustomer) {
