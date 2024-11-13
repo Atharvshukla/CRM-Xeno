@@ -3,6 +3,7 @@ import { getCustomers, sendMessage } from '../api/apiService';
 import AddCustomer from './AddCustomer';
 import CustomerTable from './customerTable';
 import FilterCustomers from './FilterCustomers';
+import './Dashboard.css';
 
 const Dashboard = () => {
   const [customers, setCustomers] = useState([]);
@@ -30,12 +31,27 @@ const Dashboard = () => {
   };
 
   return (
-    <div>
-      <h2>Dashboard</h2>
-      <AddCustomer onCustomerAdded={fetchCustomers} />
-      <FilterCustomers customers={customers} onFilter={handleFilterResults} />
-      <CustomerTable customers={filteredCustomers} />
-      <button onClick={handleSendMessage}>Send Message to All Filtered Customers</button>
+    <div className="dashboard-container">
+      <h2 className="dashboard-title">Dashboard</h2>
+
+      <div className="dashboard-section">
+        <h3 className="section-title">Add Customer</h3>
+        <AddCustomer onCustomerAdded={fetchCustomers} />
+      </div>
+
+      <div className="dashboard-section">
+        <h3 className="section-title">Filter Customers</h3>
+        <FilterCustomers customers={customers} onFilter={handleFilterResults} />
+      </div>
+
+      <div className="dashboard-section">
+        <h3 className="section-title">Customer List</h3>
+        <CustomerTable customers={filteredCustomers} />
+      </div>
+
+      <button className="send-message-button" onClick={handleSendMessage}>
+        Send Message to All Filtered Customers
+      </button>
     </div>
   );
 };
