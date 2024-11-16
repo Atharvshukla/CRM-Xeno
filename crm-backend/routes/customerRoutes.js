@@ -50,11 +50,11 @@ router.get('/filter-customers', async (req, res) => {
   }
 
   try {
-    // Filter customers based on visits and purchase amount
+    // Filter customers based on visits (<= minVisits) and purchase amount (<= minPurchaseAmount)
     const filteredCustomers = await Customer.find({
       companyId: companyId,
-      visits: { $gte: parseInt(minVisits) },
-      purchaseAmount: { $gte: parseFloat(minPurchaseAmount) },
+      visits: { $lte: parseInt(minVisits) }, // Fetch customers with visits <= minVisits
+      purchaseAmount: { $lte: parseFloat(minPurchaseAmount) }, // Fetch customers with purchaseAmount <= minPurchaseAmount
     });
 
     res.status(200).json(filteredCustomers);
@@ -62,6 +62,7 @@ router.get('/filter-customers', async (req, res) => {
     res.status(400).json({ error: 'Error filtering customers', details: err });
   }
 });
+
 
 // Route to update a customer
 router.put('/update-customer/:id', (req, res) => {
