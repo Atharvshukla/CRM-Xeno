@@ -2,20 +2,63 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:5000/api';
 
+// Register and Login
 export const registerCompany = (data) => axios.post(`${API_URL}/auth/register`, data);
 export const loginCompany = (data) => axios.post(`${API_URL}/auth/login`, data);
 
-export const addCustomer = (data, token) =>
+// Add Customer (companyId in body)
+export const addCustomer = (data) =>
   axios.post(`${API_URL}/customers/add-customer`, data, {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      'Content-Type': 'application/json',
+    },
   });
 
-export const getCustomers = (token) =>
-  axios.get(`${API_URL}/customers/`, {
-    headers: { Authorization: `Bearer ${token}` },
+// Get All Customers (companyId in body)
+export const getCustomers = (companyId) =>
+  axios.post(`${API_URL}/customers/get-customers`, { companyId }, {
+    headers: { 'Content-Type': 'application/json' },
   });
 
-export const sendMessage = (message, token) =>
-  axios.post(`${API_URL}/messages/send`, { message }, {
-    headers: { Authorization: `Bearer ${token}` },
+// Send Message to Customer (companyId in body)
+export const sendMessage = (message, customerId, companyId) =>
+  axios.post(
+    `${API_URL}/messages/send`,
+    { message, customerId, companyId },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+
+// Fetch Message History for a Customer (companyId in body)
+export const getMessageHistory = (customerId, companyId) =>
+  axios.post(`${API_URL}/messages/history`, { customerId, companyId }, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+// Filter Customers (companyId as query param)
+export const filterCustomers = (companyId, minVisits, minPurchaseAmount) =>
+  axios.get(`${API_URL}/customers/filter-customers`, {
+    params: { companyId, minVisits, minPurchaseAmount },
+  });
+
+
+// Update Customer Details
+export const updateCustomer = (customerId, companyId, data) =>
+  axios.put(`${API_URL}/customers/update-customer`, { customerId, companyId, ...data }, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+// Delete Customer (companyId in body)
+export const deleteCustomer = (customerId, companyId) =>
+  axios.post(`${API_URL}/customers/delete-customer`, { customerId, companyId }, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+// Get Customer Visit and Purchase History (companyId in body)
+export const getCustomerHistory = (customerId, companyId) =>
+  axios.post(`${API_URL}/customers/history`, { customerId, companyId }, {
+    headers: { 'Content-Type': 'application/json' },
   });

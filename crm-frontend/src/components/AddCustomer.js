@@ -1,26 +1,99 @@
 import React, { useState } from 'react';
 import { addCustomer } from '../api/apiService';
 
-const AddCustomer = ({ onCustomerAdded }) => {
-  const [customer, setCustomer] = useState({ name: '', email: '', phoneNumber: '', visits: '', purchaseAmount: '' });
-  const token = localStorage.getItem('token');
+const AddCustomerForm = () => {
+  const [companyId, setCompanyId] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [visits, setVisits] = useState('');
+  const [purchaseAmount, setPurchaseAmount] = useState('');
 
-  const handleAdd = async (e) => {
+  const handleAddCustomer = async (e) => {
     e.preventDefault();
-    await addCustomer(customer, token);
-    onCustomerAdded();
+    const customerData = {
+      companyId,
+      name,
+      email,
+      phoneNumber,
+      visits: parseInt(visits),
+      purchaseAmount: parseFloat(purchaseAmount),
+    };
+
+    try {
+      const response = await addCustomer(customerData);
+      alert(response.data.message || 'Customer added successfully!');
+    } catch (error) {
+      console.error('Error adding customer:', error);
+      alert('Failed to add customer');
+    }
   };
 
   return (
-    <form onSubmit={handleAdd}>
-      <input type="text" placeholder="Name" onChange={(e) => setCustomer({ ...customer, name: e.target.value })} required />
-      <input type="email" placeholder="Email" onChange={(e) => setCustomer({ ...customer, email: e.target.value })} required />
-      <input type="text" placeholder="Phone Number" onChange={(e) => setCustomer({ ...customer, phoneNumber: e.target.value })} required />
-      <input type="number" placeholder="Visits" onChange={(e) => setCustomer({ ...customer, visits: e.target.value })} required />
-      <input type="number" placeholder="Purchase Amount" onChange={(e) => setCustomer({ ...customer, purchaseAmount: e.target.value })} required />
+    <form onSubmit={handleAddCustomer}>
+      <div>
+        <label>Company ID:</label>
+        <input
+          type="text"
+          value={companyId}
+          onChange={(e) => setCompanyId(e.target.value)}
+          placeholder="Enter Company ID"
+          required
+        />
+      </div>
+      <div>
+        <label>Name:</label>
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Enter Customer Name"
+          required
+        />
+      </div>
+      <div>
+        <label>Email:</label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Enter Customer Email"
+          required
+        />
+      </div>
+      <div>
+        <label>Phone Number:</label>
+        <input
+          type="text"
+          value={phoneNumber}
+          onChange={(e) => setPhoneNumber(e.target.value)}
+          placeholder="Enter Phone Number"
+          required
+        />
+      </div>
+      <div>
+        <label>Visits:</label>
+        <input
+          type="number"
+          value={visits}
+          onChange={(e) => setVisits(e.target.value)}
+          placeholder="Number of Visits"
+          required
+        />
+      </div>
+      <div>
+        <label>Purchase Amount:</label>
+        <input
+          type="number"
+          value={purchaseAmount}
+          onChange={(e) => setPurchaseAmount(e.target.value)}
+          placeholder="Total Purchase Amount"
+          required
+        />
+      </div>
       <button type="submit">Add Customer</button>
     </form>
   );
 };
 
-export default AddCustomer;
+export default AddCustomerForm;
