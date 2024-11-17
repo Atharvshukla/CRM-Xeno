@@ -50,7 +50,7 @@ const Dashboard = () => {
 
     try {
       for (const customer of filteredCustomers) {
-        await sendMessage(customer._id, messageText, token);
+        await sendMessage(messageText,customer._id);
         console.log(`Message sent to customer ID: ${customer._id}`);
       }
       alert('Messages sent successfully to filtered customers!');

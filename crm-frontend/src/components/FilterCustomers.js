@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { filterCustomers, sendMessage } from '../api/apiService'; // Adjust the import path
+import { Form, Button, Spinner, ListGroup, Card, InputGroup } from 'react-bootstrap';
+import './FilterCustomerForm.css';
 
 const FilterCustomerForm = ({ setFilteredCustomers }) => {
   const [companyId, setCompanyId] = useState('');
@@ -17,11 +19,9 @@ const FilterCustomerForm = ({ setFilteredCustomers }) => {
 
     try {
       const response = await filterCustomers(companyId, minVisits, minPurchaseAmount);
-
-      // Handle the response and update state
-      const customers = response.data; // Assuming response.data is the customer list
+      const customers = response.data;
       setLocalFilteredCustomers(customers);
-      setFilteredCustomers(customers); // Update parent state if provided
+      setFilteredCustomers(customers);
     } catch (error) {
       console.error('Error filtering customers:', error);
       alert('Failed to filter customers');
@@ -48,7 +48,7 @@ const FilterCustomerForm = ({ setFilteredCustomers }) => {
         console.log(`Message sent to customer ID: ${customer._id}`);
       }
       alert('Messages sent successfully to filtered customers!');
-      setMessageText(''); // Clear the message input box
+      setMessageText('');
     } catch (error) {
       console.error('Error sending messages:', error);
       alert('Failed to send messages.');
@@ -56,67 +56,75 @@ const FilterCustomerForm = ({ setFilteredCustomers }) => {
   };
 
   return (
-    <div>
-      <form onSubmit={handleFilterCustomers}>
-        <h3>Filter Customers</h3>
-        <div>
-          <label>Company ID:</label>
-          <input
-            type="text"
-            value={companyId}
-            onChange={(e) => setCompanyId(e.target.value)}
-            placeholder="Enter Company ID"
-            required
-          />
-        </div>
-        <div>
-          <label>Minimum Visits:</label>
-          <input
-            type="number"
-            value={minVisits}
-            onChange={(e) => setMinVisits(e.target.value)}
-            placeholder="Enter Minimum Visits"
-            required
-          />
-        </div>
-        <div>
-          <label>Minimum Purchase Amount:</label>
-          <input
-            type="number"
-            value={minPurchaseAmount}
-            onChange={(e) => setMinPurchaseAmount(e.target.value)}
-            placeholder="Enter Minimum Purchase Amount"
-            required
-          />
-        </div>
-        <button type="submit" disabled={loading}>
-          {loading ? 'Filtering...' : 'Filter Customers'}
-        </button>
-      </form>
+    <Card className="filter-customer-form">
+      <Card.Body>
+        <h3 className="form-title">Filter Customers</h3>
+        <Form onSubmit={handleFilterCustomers} className="filter-form">
+          <Form.Group controlId="companyId">
+            <Form.Label>Company ID</Form.Label>
+            <Form.Control
+              type="text"
+              value={companyId}
+              onChange={(e) => setCompanyId(e.target.value)}
+              placeholder="Enter Company ID"
+              required
+            />
+          </Form.Group>
+          <Form.Group controlId="minVisits">
+            <Form.Label>Minimum Visits</Form.Label>
+            <Form.Control
+              type="number"
+              value={minVisits}
+              onChange={(e) => setMinVisits(e.target.value)}
+              placeholder="Enter Minimum Visits"
+              required
+            />
+          </Form.Group>
+          <Form.Group controlId="minPurchaseAmount">
+            <Form.Label>Minimum Purchase Amount (₹)</Form.Label>
+            <Form.Control
+              type="number"
+              value={minPurchaseAmount}
+              onChange={(e) => setMinPurchaseAmount(e.target.value)}
+              placeholder="Enter Minimum Purchase Amount"
+              required
+            />
+          </Form.Group>
+          <Button variant="primary" type="submit" disabled={loading} className="filter-button">
+            {loading ? <Spinner as="span" animation="border" size="sm" /> : 'Filter Customers'}
+          </Button>
+        </Form>
 
-      {/* Show filtered customers */}
-      {filteredCustomers.length > 0 && (
-        <div>
-          <h3>Filtered Customers</h3>
-          <ul>
-            {filteredCustomers.map((customer) => (
-              <li key={customer._id}>
-                {customer.name}, {customer.email}, Visits: {customer.visits}, Purchase: ₹{customer.purchaseAmount}
-              </li>
-            ))}
-          </ul>
+        {filteredCustomers.length > 0 && (
+          <div className="filtered-customers-section">
+            <h4>Filtered Customers</h4>
+            <ListGroup className="customer-list">
+              {filteredCustomers.map((customer) => (
+                <ListGroup.Item key={customer._id} className="customer-item">
+                  <div>
+                    <strong>{customer.name}</strong> ({customer.email})
+                  </div>
+                  <div>Visits: {customer.visits}, Purchase: ₹{customer.purchaseAmount}</div>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
 
-          {/* Custom message input and send button */}
-          <textarea
-            value={messageText}
-            onChange={(e) => setMessageText(e.target.value)}
-            placeholder="Type your message here..."
-            rows="4"
-          />
-          <button onClick={handleSendMessage}>Send Message to Filtered Customers</button>
-        </div>
-      )}
-    </div>
+            <InputGroup className="message-input">
+              <Form.Control
+                as="textarea"
+                value={messageText}
+                onChange={(e) => setMessageText(e.target.value)}
+                placeholder="Type your message here..."
+                rows="3"
+              />
+            </InputGroup>
+            <Button variant="success" onClick={handleSendMessage} className="send-button">
+              Send Message
+            </Button>
+          </div>
+        )}
+      </Card.Body>
+    </Card>
   );
 };
 

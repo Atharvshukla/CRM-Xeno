@@ -27,16 +27,24 @@ export const getCustomers = (companyId) =>
   });
 
 // Send Message to Customer (companyId in body)
-export const sendMessage = (message, customerId, companyId) =>
-  axios.post(
+export const sendMessage = (message, customerId,) => {
+  // Ensure customerId is a valid ObjectId before making the API call
+  // if (!/^[a-f\d]{24}$/i.test(customerId)) {
+  //   console.error('Invalid customerId format:', customerId);
+  //   return Promise.reject('Invalid customerId format');
+  // }
+
+  return axios.post(
     `${API_URL}/messages/send`,
-    { message, customerId, companyId },
+    { message, customerId },
     {
       headers: {
         'Content-Type': 'application/json',
       },
     }
   );
+};
+
 
 // Fetch Message History for a Customer (companyId in body)
 export const getMessageHistory = (customerId, companyId) =>
