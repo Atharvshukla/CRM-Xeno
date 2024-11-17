@@ -6,6 +6,12 @@ const API_URL = 'http://localhost:5000/api';
 export const registerCompany = (data) => axios.post(`${API_URL}/auth/register`, data);
 export const loginCompany = (data) => axios.post(`${API_URL}/auth/login`, data);
 
+// Customer Login
+export const customerLogin = (data) =>
+  axios.post(`${API_URL}/auth/customer/login`, data, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+
 // Add Customer (companyId in body)
 export const addCustomer = (data) =>
   axios.post(`${API_URL}/customers/add-customer`, data, {
@@ -43,7 +49,6 @@ export const filterCustomers = (companyId, minVisits, minPurchaseAmount) =>
   axios.get(`${API_URL}/customers/filter-customers`, {
     params: { companyId, minVisits, minPurchaseAmount },
   });
-
 
 // Update Customer Details
 export const updateCustomer = (customerId, companyId, data) =>
