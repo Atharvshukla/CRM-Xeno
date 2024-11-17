@@ -1,3 +1,4 @@
+// models/message.js
 const mongoose = require('mongoose');
 
 const messageSchema = new mongoose.Schema(
@@ -20,6 +21,4 @@ const messageSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Message = mongoose.model('Message', messageSchema);
-
-module.exports = Message;
+module.exports = mongoose.model('Message', messageSchema);

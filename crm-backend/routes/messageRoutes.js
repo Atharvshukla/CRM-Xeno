@@ -1,42 +1,29 @@
 const express = require('express');
 const router = express.Router();
-const Customer = require('../models/customerModel'); // Assuming you have a customer model
-const RedisClient = require('../utils/redisClient'); // Assuming you use Redis for pub/sub
-const { sendMessage } = require('../utils/messageService'); // Assuming you have a message service for sending messages
+const Message = require('../models/Message');
+const Customer = require('../models/customerModel');
 
-// Route to send a message to customers based on filter
-router.post('/send-message', (req, res) => {
-  const { message, minVisits, minAmount } = req.body;
+// Send message to a specific customer
+router.post('/send', async (req, res) => {
+  const { customerId, message } = req.body;
 
-  if (!message || !minVisits || !minAmount) {
-    return res.status(400).json({ error: 'Message, minVisits, and minAmount are required' });
+  try {
+    const customer = await Customer.findById(customerId);
+    if (!customer) {
+      return res.status(404).json({ error: 'Customer not found' });
+    }
+
+    const newMessage = await Message.create({
+      customerId,
+      message,
+      status: 'SENT',
+    });
+
+    res.json({ success: true, message: 'Message sent', data: newMessage });
+  } catch (error) {
+    console.error('Error sending message:', error);
+    res.status(500).json({ error: 'Failed to send message' });
   }
-
-  // Fetch customers based on filter criteria
-  Customer.find({ 
-    visits: { $gte: minVisits }, 
-    amount: { $gte: minAmount } 
-  })
-    .then(customers => {
-      if (customers.length === 0) {
-        return res.status(404).json({ error: 'No customers match the criteria' });
-      }
-
-      // Send the message to each customer (this could be via Redis pub/sub or any messaging system)
-      customers.forEach(customer => {
-        // Example: publish a message to a Redis channel
-        RedisClient.publish('customerMessages', JSON.stringify({
-          customerId: customer._id,
-          message,
-        }));
-
-        // Or you can send the message directly (using any service like Twilio, etc.)
-        sendMessage(customer.phone, message);
-      });
-
-      res.status(200).json({ message: 'Messages sent successfully to customers!' });
-    })
-    .catch(err => res.status(500).json({ error: 'Error sending messages', details: err }));
 });
 
 module.exports = router;

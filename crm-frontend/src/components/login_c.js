@@ -1,26 +1,27 @@
 import React, { useState } from 'react';
-import { loginCompany } from '../api/apiService';
+import { customerLogin } from '../api/apiService';  // Make sure to import the correct API method
 import { useNavigate } from 'react-router-dom';
 import './Login.css'; // Import the CSS file
 
-const Login = () => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+const CustomerLogin = () => {
+  const [formData, setFormData] = useState({ email: '', companyId: '' });
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await loginCompany(formData);
-      localStorage.setItem('token', data.token);
-      navigate('/dashboard');
+      // Make the API request with email and companyId only
+      const { data } = await customerLogin(formData);
+      localStorage.setItem('token', data.token);  // Store the token in localStorage
+      navigate('/customer-dashboard');  // Redirect to the customer dashboard or any other page
     } catch (err) {
-      alert('Login failed');
+      alert('Login failed. Please check your credentials.');
     }
   };
 
   return (
     <div className="login-container">
-      <h2>Login</h2>
+      <h2>Customer Login</h2>
       <form onSubmit={handleLogin} className="login-form">
         <input
           type="email"
@@ -30,10 +31,10 @@ const Login = () => {
           required
         />
         <input
-          type="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+          type="text"
+          placeholder="Company ID"
+          value={formData.companyId}
+          onChange={(e) => setFormData({ ...formData, companyId: e.target.value })}
           required
         />
         <button type="submit" className="login-button">Login</button>
@@ -41,13 +42,8 @@ const Login = () => {
       <button className="register-button" onClick={() => navigate('/register')}>
         Go to Register
       </button>
-
-      {/* New button to navigate to customer login */}
-      <button className="customer-login-button" onClick={() => navigate('/login_c')}>
-        Login as Customer
-      </button>
     </div>
   );
 };
 
-export default Login;
+export default CustomerLogin;

@@ -1,55 +1,70 @@
+// Import dependencies
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const customerRoutes = require('./routes/customerRoutes');
-const messageRoutes = require('./routes/messageRoutes'); // Ensure messageRoutes is created
-const authRoutes = require('./routes/authRoutes'); // Assuming you have routes for authentication
-const RedisClient = require('./utils/redisClient'); // Redis connection
 const dotenv = require('dotenv');
+const RedisClient = require('./utils/redisClient'); // Redis client utility
+const customerRoutes = require('./routes/customerRoutes');
+const messageRoutes = require('./routes/messageRoutes');
+const authRoutes = require('./routes/authRoutes');
 
-dotenv.config(); // Load environment variables
+// Load environment variables
+dotenv.config();
 
 // Initialize Express app
 const app = express();
+const PORT = process.env.PORT || 5000;
+const MONGO_URI = process.env.MONGO_URI;
 
 // Middleware
-app.use(cors()); // Enable CORS
-app.use(express.json()); // Parse JSON requests
+app.use(cors());
+app.use(express.json());
 
-// Routes
-app.use('/api/auth', authRoutes); // Authentication routes (login, registration)
-app.use('/api/customers', customerRoutes); // Customer management routes
-app.use('/api/messages', messageRoutes); // Message sending routes
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/customers', customerRoutes);
+app.use('/api/messages', messageRoutes);
 
-// MongoDB connection
+// MongoDB Connection Function
 const connectDb = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI, { 
-      // useNewUrlParser: true, 
-      // useUnifiedTopology: true 
-    });
-    console.log('MongoDB connected');
+    await mongoose.connect(MONGO_URI);
+    console.log('✅ MongoDB connected');
   } catch (error) {
-    console.error('Error connecting to MongoDB:', error);
-    process.exit(1); // Exit if DB connection fails
+    console.error('❌ Error connecting to MongoDB:', error);
+    process.exit(1);
   }
 };
 
-connectDb();
-
-// Set up Redis client for pub/sub (optional, used for messaging)
+// Redis Client Initialization
 RedisClient.on('connect', () => {
-  console.log('Redis connected');
+  console.log('✅ Redis connected');
 });
 
-// Redis Pub/Sub Example - Subscribe to customer messages
-RedisClient.subscribe('customerMessages', (message) => {
-  console.log('Received message:', message);
+RedisClient.on('error', (err) => {
+  console.error('❌ Redis connection error:', err);
 });
 
-// Start the server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Redis Pub/Sub - Listen to customer messages
+RedisClient.subscribe('customerMessages');
+RedisClient.on('message', (channel, message) => {
+  console.log(`📩 Received message on channel [${channel}]:`, message);
+  // Handle the message received from Redis (e.g., send notifications to users)
 });
 
+// Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.error('🔥 Error:', err.message);
+  res.status(500).json({ error: 'Internal Server Error' });
+});
+
+// Start the server after DB connection
+const startServer = async () => {
+  await connectDb();
+
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+  });
+};
+
+startServer();

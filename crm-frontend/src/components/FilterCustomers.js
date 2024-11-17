@@ -1,37 +1,64 @@
 import React, { useState } from 'react';
-import { filterCustomers } from '../api/apiService';
+import { filterCustomers, sendMessage } from '../api/apiService'; // Adjust the import path
 
-const FilterCustomerForm = () => {
+const FilterCustomerForm = ({ setFilteredCustomers }) => {
   const [companyId, setCompanyId] = useState('');
   const [minVisits, setMinVisits] = useState('');
   const [minPurchaseAmount, setMinPurchaseAmount] = useState('');
-  const [filteredCustomers, setFilteredCustomers] = useState([]);
-  const [loading, setLoading] = useState(false); // Loading state
+  const [filteredCustomers, setLocalFilteredCustomers] = useState([]);
+  const [messageText, setMessageText] = useState('');
+  const [loading, setLoading] = useState(false);
+  const token = localStorage.getItem('token');
 
+  // Fetch filtered customers based on criteria
   const handleFilterCustomers = async (e) => {
     e.preventDefault();
-
-    setLoading(true); // Start loading
+    setLoading(true);
 
     try {
-      // Make the POST request with the necessary body data
       const response = await filterCustomers(companyId, minVisits, minPurchaseAmount);
-      
-      // Handle successful API response
-      setFilteredCustomers(response.data);
+
+      // Handle the response and update state
+      const customers = response.data; // Assuming response.data is the customer list
+      setLocalFilteredCustomers(customers);
+      setFilteredCustomers(customers); // Update parent state if provided
     } catch (error) {
       console.error('Error filtering customers:', error);
-      
-      // Error handling if API request fails
       alert('Failed to filter customers');
     } finally {
-      setLoading(false); // End loading
+      setLoading(false);
+    }
+  };
+
+  // Send a message to filtered customers
+  const handleSendMessage = async () => {
+    if (!messageText.trim()) {
+      alert('Please enter a message to send.');
+      return;
+    }
+
+    if (filteredCustomers.length === 0) {
+      alert('No customers to send messages to!');
+      return;
+    }
+
+    try {
+      for (const customer of filteredCustomers) {
+        await sendMessage(customer._id, messageText, token);
+        console.log(`Message sent to customer ID: ${customer._id}`);
+      }
+      alert('Messages sent successfully to filtered customers!');
+      setMessageText(''); // Clear the message input box
+    } catch (error) {
+      console.error('Error sending messages:', error);
+      alert('Failed to send messages.');
     }
   };
 
   return (
     <div>
       <form onSubmit={handleFilterCustomers}>
+        <h3>Filter Customers</h3>
         <div>
           <label>Company ID:</label>
           <input
@@ -62,23 +89,31 @@ const FilterCustomerForm = () => {
             required
           />
         </div>
-        <button type="submit" disabled={loading}>Filter Customers</button>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Filtering...' : 'Filter Customers'}
+        </button>
       </form>
 
-      {/* Display loading state */}
-      {loading && <p>Loading...</p>}
-
-      {/* Display filtered customers */}
+      {/* Show filtered customers */}
       {filteredCustomers.length > 0 && (
         <div>
           <h3>Filtered Customers</h3>
           <ul>
             {filteredCustomers.map((customer) => (
               <li key={customer._id}>
-                Name: {customer.name}, Email: {customer.email}, Visits: {customer.visits}, Purchase Amount: ₹{customer.purchaseAmount}
+                {customer.name}, {customer.email}, Visits: {customer.visits}, Purchase: ₹{customer.purchaseAmount}
               </li>
             ))}
           </ul>
+
+          {/* Custom message input and send button */}
+          <textarea
+            value={messageText}
+            onChange={(e) => setMessageText(e.target.value)}
+            placeholder="Type your message here..."
+            rows="4"
+          />
+          <button onClick={handleSendMessage}>Send Message to Filtered Customers</button>
         </div>
       )}
     </div>
