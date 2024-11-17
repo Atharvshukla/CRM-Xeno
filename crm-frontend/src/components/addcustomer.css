@@ -1,0 +1,72 @@
+/* Container styling */
+.add-customer-form {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Form Title */
+  .add-customer-title {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #007bff;
+    font-weight: bold;
+  }
+  
+  /* Form control styling */
+  .add-customer-form .form-control {
+    margin-bottom: 15px;
+    border-radius: 5px;
+  }
+  
+  /* Button styling */
+  .add-button {
+    width: 100%;
+    margin-top: 15px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    transition: background-color 0.3s;
+  }
+  
+  .add-button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Label styling */
+  .add-customer-form .form-label {
+    font-weight: 500;
+    color: #333;
+  }
+  
+  /* Card Styling */
+  .add-customer-card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+  }
+  
+  /* Input focus effect */
+  .add-customer-form .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+  
+  /* Loader styling for loading state */
+  .add-button[disabled] {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 576px) {
+    .add-customer-form {
+      padding: 15px;
+    }
+    .add-button {
+      font-size: 14px;
+    }
+  }
+  
